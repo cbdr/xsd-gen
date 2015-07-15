@@ -1,11 +1,13 @@
 package org.wiztools.xsdgen;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -20,11 +22,7 @@ import nu.xom.Elements;
 import nu.xom.ParsingException;
 import nu.xom.Serializer;
 
-/**
- * @author subWiz
- */
-public final class XsdGen {
-
+public class XsdGenWithoutAtrribute {
     private static final String XSD_NS_URI = "http://www.w3.org/2001/XMLSchema";
 
     private final String xsdPrefix;
@@ -35,7 +33,7 @@ public final class XsdGen {
     /**
      * Constructs new {@code XsdGen} with defaults settings.
      */
-    public XsdGen() {
+    public XsdGenWithoutAtrribute() {
         this(new XsdConfig());
     }
 
@@ -44,23 +42,18 @@ public final class XsdGen {
      *
      * @param config             the XSD configuration
      */
-    public XsdGen(XsdConfig config) {
+    public XsdGenWithoutAtrribute(XsdConfig config) {
         xsdPrefix = config.getXsdPrefix();
+        // set MaxOccursOnce true.
+        config.setEnableMaxOccursOnce(true);
         this.enableMaxOccursOnce = config.isEnableMaxOccursOnce();
     }
 
 
     private void processAttributes(final Element inElement, final Element outElement) {
-        for (int i = 0; i < inElement.getAttributeCount(); i++) {
-            final Attribute attr = inElement.getAttribute(i);
-            final String name = attr.getLocalName();
-            final String value = attr.getValue();
-            Element attrElement = new Element(xsdPrefix + ":attribute", XSD_NS_URI);
-            attrElement.addAttribute(new Attribute("name", name));
-            attrElement.addAttribute(new Attribute("type", xsdPrefix + TypeInferenceUtil.getTypeOfContent(value)));
-            attrElement.addAttribute(new Attribute("use", "required"));
-            outElement.appendChild(attrElement);
-        }
+        Element anyAttributeElement = new Element(xsdPrefix + ":anyAttribute", XSD_NS_URI);
+        anyAttributeElement.addAttribute(new Attribute("processContents", "lax"));
+        outElement.appendChild(anyAttributeElement);
     }
 
     private void recurseGen(Element parent, Element parentOutElement) {
@@ -173,11 +166,15 @@ public final class XsdGen {
         }
     }
 
-    public XsdGen parse(File file) throws IOException, ParseException {
+    public XsdGenWithoutAtrribute parse(String file) throws IOException, ParseException {
+        return parse(new ByteArrayInputStream(file.getBytes(StandardCharsets.UTF_8)));
+    }
+
+    public XsdGenWithoutAtrribute parse(File file) throws IOException, ParseException {
         return parse(new FileInputStream(file));
     }
 
-    public XsdGen parse(InputStream is) throws IOException, ParseException {
+    public XsdGenWithoutAtrribute parse(InputStream is) throws IOException, ParseException {
         try {
             doc = getDocument(is);
             return this;

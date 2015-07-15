@@ -1,15 +1,16 @@
 package org.wiztools.xsdgen;
 
-import com.sampullara.cli.Args;
-import com.sampullara.cli.Argument;
-import org.wiztools.commons.Charsets;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.List;
+
+import org.wiztools.commons.Charsets;
+
+import com.sampullara.cli.Args;
+import com.sampullara.cli.Argument;
 
 /**
  *
@@ -37,8 +38,7 @@ public class XsdGenMain {
     public static void main(String[] arg) throws ParseException, IOException {
         ArgParse cliParser = new ArgParse();
         List<String> extras = Args.parse(cliParser, arg);
-        if(extras.size() != 1
-                || cliParser.isHelp) {
+        if(extras.size() != 1 || cliParser.isHelp) {
             Args.usage(cliParser);
             System.exit(1);
         }
@@ -46,7 +46,6 @@ public class XsdGenMain {
         final File xmlFile = new File(extras.get(0));
 
         // XSD prefix
-        
         XsdConfig config = new XsdConfig();
         if(cliParser.xsdPrefix != null) {
             config.setXsdPrefix(cliParser.xsdPrefix);
